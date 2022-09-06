@@ -14,4 +14,4 @@ functions:
     events:
       - http:
           method: get
-          path: gettoon
+          path: toonverse
