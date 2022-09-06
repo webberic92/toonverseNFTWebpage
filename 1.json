@@ -1,0 +1,62 @@
+{
+    "name": "Toonverse #1",
+    "description": "The Catz are the genesis collection, they acquire benefits from all subsequent Toonverse collections. Revenue-sharing and sizable dividend disbursement are game for the most devoted investors, all funded from future project endeavors! In other words, those who represent the Devil Cats community will receive these dividends from future ToonVerse creations, mini collections, 1 of 1 collections, and “ArtPad” launch projects that get accepted.",
+    "animation_url": "http://54.211.34.182/?id=1",
+    "image": "https://toonverse.s3.amazonaws.com/1.png",
+    "original_image": "https://toonverse.s3.amazonaws.com/default.png",
+    "dna": "e322b2e15bf658fc5c9e7fd0419a992a71471c93",
+    "edition": 1,
+    "date": 1662314261083,
+    "attributes": [
+      {
+        "trait_type": "Background_Layer_1",
+        "value": "Beige"
+      },
+      {
+        "trait_type": "Back_Of_Eyes_Layer_2",
+        "value": "Yellow"
+      },
+      {
+        "trait_type": "Skin_Layer_3",
+        "value": "IMG_3076"
+      },
+      {
+        "trait_type": "Tattoos_Layer_4",
+        "value": "Cholo"
+      },
+      {
+        "trait_type": "Eyes_Layer_5",
+        "value": "IMG_3211"
+      },
+      {
+        "trait_type": "Mouths_Layer_6",
+        "value": "Piano"
+      },
+      {
+        "trait_type": "Nose_Layer_7",
+        "value": "IMG_2531"
+      },
+      {
+        "trait_type": "Shirt_Layer_8",
+        "value": "Punk"
+      },
+      {
+        "trait_type": "Front_Hand_Layer_9",
+        "value": "IMG_2826"
+      },
+      {
+        "trait_type": "Hat_Layer_10",
+        "value": "IMG_2941"
+      },
+      {
+        "trait_type": "Back_Hand_Layer_11",
+        "value": "Flounder"
+      },
+      {
+        "trait_type": "Pants_Layer_12",
+        "value": "IMG_2442"
+      }
+    ],
+    "compiler": "HashLips Art Engine"
+  }
+  

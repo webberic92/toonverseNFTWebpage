@@ -1,0 +1,107 @@
+<html>
+<head>
+	<title>Toonverse</title>
+	<link rel="shortcut icon" href="#">
+
+<style>
+body {
+	margin: 0;
+	overflow: hidden;
+	padding: 0;
+	text-align: center;
+}
+
+#container {
+	/* border: 10px solid white; */
+	display: inline-block;
+  margin: 0 auto;
+	max-height: 470px;
+	max-width: 470px;
+  padding: 0;
+  position: relative;
+	width: 100%;
+}
+
+#container img{
+	object-fit: contain;
+	width: 100%;
+}
+
+#container #button_image{
+	border: none;
+	cursor: pointer;
+	outline: none;
+	position: absolute;
+	right: 0;
+	top: 0;
+
+	height: 34.9px;
+	width: 34.9px;	
+}
+</style>
+</head>
+<body onload="loadCursor()">
+<div id="container">
+	<img id="button_image" onclick="switch_image()" src="https://toonverse.s3.amazonaws.com/Button.png"/>
+	<img id="oldStyle" style="display: none" />
+	<img id="newStyle" style="display: block" />
+</div>
+<!-- <script type="text/javascript" src="tokens.js"></script> -->
+<script type="text/javascript">
+function loadCursor() {
+}
+function switch_image(){
+    var old_style = document.getElementById("oldStyle");
+    var new_style =  document.getElementById("newStyle");
+
+    oldDisplay = window.getComputedStyle(old_style).display;
+    newDisplay = window.getComputedStyle(new_style).display;
+    // console.log(oldDisplay)
+    // console.log(newDisplay)
+
+    if (oldDisplay == "block"){
+        new_style.style.display = "block"
+        old_style.style.display = "none"
+    }else if(newDisplay == "block"){
+        new_style.style.display = "none"
+        old_style.style.display = "block"
+    }
+    else{
+        console.log("panic")
+    }
+}
+
+
+function getUrlParameter( id ){
+	id = id.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+	const regex = new RegExp( "[\\?&]" + id + "=([^&#]*)" );
+	const results = regex.exec( window.location.search );
+	if( results  )
+		return decodeURIComponent( results[1].replace( /\+/g, " ") );
+	else
+		return null;
+}
+
+
+document.addEventListener('DOMContentLoaded', () => {
+	const id = getUrlParameter( "id" );
+	if( id ){
+		const oldStyle = document.getElementById( 'oldStyle' );
+		const newStyle = document.getElementById( 'newStyle' );
+
+
+		if( newStyle.src !== 'https://toonverse.s3.amazonaws.com/'+ id +'.png'){
+			newStyle.src = 'https://toonverse.s3.amazonaws.com/'+ id +'.png';
+		}
+		
+		if( oldStyle.src !== 'https://toonverse.s3.amazonaws.com/JunkYardDefault.png' ){
+			oldStyle.src = 'https://toonverse.s3.amazonaws.com/JunkYardDefault.png';
+		}
+
+	}
+});
+
+
+</script>
+</body>
+</html>
