@@ -4,14 +4,17 @@ const ganache = require("ganache");
 const Web3 = require("web3");
 const web3 = new Web3(ganache.provider());
 
-const contractABI = require("../toonverseABI.json");
-const contractByteCode = require("../toonverseByteCode.json");
+const contractABI = require("../web3/toonverseABI.json");
+const contractByteCode = require("../web3/toonverseByteCode.json");
 
 let accounts;
 let OWNER_ACCOUNT;
+let DEV_ACCOUNT;
 let USER1_ACCOUNT;
 let TOONVERSE_CONTRACT;
-let price;
+let PRICE;
+let MAX_MINT_AMOUNT = 20;
+let MAX_NFT_SUPPLY = 6666;
 
 // beforeEach(async () => {
 // });
@@ -27,17 +30,17 @@ describe("Toonverse initialization logic.", async () => {
     assert.ok(TOONVERSE_CONTRACT.options.address);
   });
 
-  it("Name is Toonverse, Symbol is TOON, maxMintAmount is 5, Maxsupply 6666.", async () => {
+  it("Name is Toonverse, Symbol is TOON, maxMintAmount is 20, Maxsupply 6666.", async () => {
     assert.equal("Toonverse", await TOONVERSE_CONTRACT.methods.name().call());
     assert.equal("TOON", await TOONVERSE_CONTRACT.methods.symbol().call());
-    assert.equal(5, await TOONVERSE_CONTRACT.methods.maxMintAmount().call());
-    assert.equal(6666, await TOONVERSE_CONTRACT.methods.maxSupply().call());
+    assert.equal(MAX_MINT_AMOUNT, await TOONVERSE_CONTRACT.methods.maxMintAmount().call());
+    assert.equal(MAX_NFT_SUPPLY, await TOONVERSE_CONTRACT.methods.maxSupply().call());
   });
 
   it("Number in circulation is 1 initially,Cost is .06", async () => {
     assert.equal(1, await TOONVERSE_CONTRACT.methods.totalSupply().call());
     assert.equal(
-      60000000000000000,
+      60000000000000000n,
       await TOONVERSE_CONTRACT.methods.cost().call()
     );
   });
@@ -288,10 +291,10 @@ describe("Toonverse Minting Logic. ", async () => {
     assert.equal(false, bool);
 
     //verify can  mint when sending money
-    price = await TOONVERSE_CONTRACT.methods.cost().call();
+    PRICE = await TOONVERSE_CONTRACT.methods.cost().call();
     await TOONVERSE_CONTRACT.methods.mint(2).send({
       from: USER1_ACCOUNT,
-      value: price * 2,
+      value: PRICE * 2,
     });
     assert.equal(
       2,
@@ -301,7 +304,7 @@ describe("Toonverse Minting Logic. ", async () => {
 
   it("Account has balance of 2 sales.", async () => {
     assert.equal(
-      price * 2,
+      PRICE * 2,
       await web3.eth.getBalance(TOONVERSE_CONTRACT.options.address)
     );
   });
@@ -310,7 +313,7 @@ describe("Toonverse Minting Logic. ", async () => {
     let currentContractBalance = await web3.eth.getBalance(
       TOONVERSE_CONTRACT.options.address
     );
-    assert.equal(price * 2, currentContractBalance);
+    assert.equal(PRICE * 2, currentContractBalance);
     //First verify normal user CANT withdraw.
     let bool = true;
     try {
@@ -322,9 +325,9 @@ describe("Toonverse Minting Logic. ", async () => {
     }
     assert.equal(false, bool);
     //Second get owners balance and verify they can withdraw.
-    assert.equal(price * 2, currentContractBalance);
+    assert.equal(PRICE * 2, currentContractBalance);
     let origAdminsBalance = await web3.eth.getBalance(OWNER_ACCOUNT);
-    await TOONVERSE_CONTRACT.methods.withdraw(BigInt(price * 2)).send({
+    await TOONVERSE_CONTRACT.methods.withdraw(BigInt(PRICE * 2)).send({
       from: OWNER_ACCOUNT,
     });
 
