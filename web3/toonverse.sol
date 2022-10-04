@@ -23,58 +23,66 @@
     contract TOONVERSE is ERC721A {
     using Strings for uint256;
 
-    string public baseURI;
-    string public baseExtension = ".json";
-    uint256 public cost = 0.06 ether;
-    uint256 public maxSupply = 6666;
-    uint256 public  immutable maxMintAmount = 5;
-    bool public paused = true;
-    bool public revealed = false;
-    string public notRevealedUri;
-    address public owner = msg.sender;
-    bytes32 public whiteListMerkleRoot = 0xd4e5bd371dfbeece6f828705d5ba966c3f742b6f4429e7cf08f1b2248f7349a8;
-    mapping(address => bool) public whiteListClaimed;
-    bool public whiteListOnly = true;
+    uint256 public COST = 0.038 ether;
+    uint256 public MAX_SUPPLY = 6666;
+    uint256 public  immutable MAX_MINT_AMOUNT = 20;
+    string public BASE_URI ="https://toonverse.s3.amazonaws.com/";
+    string public BASE_EXTENSION = ".json";
+    string public NOT_REVEALED_URI= "https://toonverse.s3.amazonaws.com/1.json";
+    bool public PAUSED = true;
+    bool public REVEALED = false;
+
+    address public OWNER = msg.sender;
+    address public DEV = 0x6aF9cE90BaA2640cc06f9661B37835Ab97807311;
+    address public PARTNER =0x4bE40dFf0B2B77Aef1d3d783795900c89e6E8Fbf;
+    bytes32 public WHITELIST_MERKLE_ROOT = 0xd4e5bd371dfbeece6f828705d5ba966c3f742b6f4429e7cf08f1b2248f7349a8;
+    mapping(address => bool) public WHITELIST_CLAIMED;
+    bool public IS_WHITELIST_ONLY = true;
 
 
-    constructor() ERC721A("Toonverse", "TOON",maxSupply,maxMintAmount) {
-        baseURI = "https://ethereyez.s3.amazonaws.com/";
-        notRevealedUri = "https://ethereyez.s3.amazonaws.com/preReveal.json";
-
+    constructor() ERC721A("Toonverse", "TOON",MAX_SUPPLY,MAX_MINT_AMOUNT) {
+        _safeMint(OWNER,100);
+        _safeMint(PARTNER,50);
+        _safeMint(DEV,25);
     }
 
 
         modifier onlyOwner() {
-            require(msg.sender == owner, 'Only Owner');
+            require(msg.sender == OWNER, 'Only OWNER');
+            _;
+        }
+
+        modifier onlyDev() {
+            require(msg.sender == DEV, 'Only Dev');
             _;
         }
 
         modifier mintChecks(uint256 _mintAmount) {
         require(_mintAmount > 0, "Mint amount has to be greater than 0.");
-        require(totalSupply() + _mintAmount <= maxSupply, "Minting that many would go over whats available.");
+        require(totalSupply() + _mintAmount <= MAX_SUPPLY, "Minting that many would go over whats available.");
             _;
         }
 
     function setWhiteListMerkleRoot(bytes32 _wl) public onlyOwner {
-            whiteListMerkleRoot = _wl;
+            WHITELIST_MERKLE_ROOT = _wl;
         }
 
     function setWhiteListOnly(bool _b) public onlyOwner {
-            whiteListOnly = _b;
+            IS_WHITELIST_ONLY = _b;
         }
     
 
     function checkIfPaused() internal view {
-        require(!paused,"Contract currently paused.");
+        require(!PAUSED,"Contract currently PAUSED.");
     }
 
 
     function mint(uint256 _mintAmount) public payable  mintChecks(_mintAmount) {
-        if (msg.sender != owner) {
+        if (msg.sender != OWNER) {
             checkIfPaused();
-            require(_mintAmount<= maxMintAmount, "Can not exceed max mint amount.");
-            require(!whiteListOnly,"Only whitelist can mint right now.");
-            require(msg.value >= cost * _mintAmount, "Not Enough Eth Sent.");
+            require(_mintAmount<= MAX_MINT_AMOUNT, "Can not exceed max mint amount.");
+            require(!IS_WHITELIST_ONLY,"Only whitelist can mint right now.");
+            require(msg.value >= COST * _mintAmount, "Not Enough Eth Sent.");
         }
         _safeMint(msg.sender,_mintAmount);
 
@@ -83,19 +91,19 @@
 
     function mintWhiteList(bytes32[] calldata _merkleProof,uint256 _mintAmount) public payable  mintChecks(_mintAmount) {
 
-        if(owner!=msg.sender){
+        if(OWNER!=msg.sender){
             checkIfPaused();
-            require(_mintAmount<= maxMintAmount, "Can not exceed max mint amount.");
-            require(whiteListOnly,"Whitelist no longer available.");   
-            require(!whiteListClaimed[msg.sender],"Address has already claimed");
+            require(_mintAmount<= MAX_MINT_AMOUNT, "Can not exceed max mint amount.");
+            require(IS_WHITELIST_ONLY,"Whitelist no longer available.");   
+            require(!WHITELIST_CLAIMED[msg.sender],"Address has already claimed");
 
             bytes32 leaf = keccak256(abi.encodePacked(msg.sender));
-            require(MerkleProof.verify(_merkleProof,whiteListMerkleRoot,leaf),"Invalid Proof");
-            require(msg.value >= cost * _mintAmount, "Not Enough Eth Sent.");
+            require(MerkleProof.verify(_merkleProof,WHITELIST_MERKLE_ROOT,leaf),"Invalid Proof");
+            require(msg.value >= COST * _mintAmount, "Not Enough Eth Sent.");
 
             }
         _safeMint(msg.sender,_mintAmount);
-        whiteListClaimed[msg.sender]=true;
+        WHITELIST_CLAIMED[msg.sender]=true;
 
 
     }
@@ -114,43 +122,46 @@
         "ERC721Metadata: URI query for nonexistent token"
         );
         
-        if(revealed == false) {
-            return notRevealedUri;
+        if(REVEALED == false) {
+            return NOT_REVEALED_URI;
         }
 
-        return bytes(baseURI).length > 0
-            ? string(abi.encodePacked(baseURI, (_tokenId).toString(), baseExtension))
+        return bytes(BASE_URI).length > 0
+            ? string(abi.encodePacked(BASE_URI, (_tokenId).toString(), BASE_EXTENSION))
             : "";
     }
 
     function setRevealed(bool _b) public onlyOwner {
-        revealed = _b;
+        REVEALED = _b;
     }
     
     function setCost(uint256 _newCost) public onlyOwner {
-        cost = _newCost;
+        COST = _newCost;
     }
 
     
     function setNotRevealedURI(string memory _notRevealedURI) public onlyOwner {
-        notRevealedUri = _notRevealedURI;
+        NOT_REVEALED_URI = _notRevealedURI;
     }
 
     function setBaseURI(string memory _newBaseURI) public onlyOwner {
-        baseURI = _newBaseURI;
+        BASE_URI = _newBaseURI;
     }
 
     function setBaseExtension(string memory _newBaseExtension) public onlyOwner {
-        baseExtension = _newBaseExtension;
+        BASE_EXTENSION = _newBaseExtension;
     }
 
     function setPaused(bool _state) public onlyOwner {
-        paused = _state;
+        PAUSED = _state;
     }
     
+    function setDev(address _address) public onlyDev {
+        DEV = _address;
+    }
     function withdraw(uint256 _amount) public payable onlyOwner {
         
-        (bool os, ) = payable(owner).call{value: _amount}("");
+        (bool os, ) = payable(OWNER).call{value: _amount}("");
         require(os);
     }
 

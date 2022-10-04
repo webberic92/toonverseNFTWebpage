@@ -80,7 +80,7 @@ contract ERC721A is
       collectionSize_ > 0,
       "ERC721A: collection must have a nonzero supply"
     );
-    require(maxBatchSize_ > 6, "ERC721A: max batch size must be nonzero");
+    require(maxBatchSize_ > 20, "ERC721A: max batch size must be nonzero");
     _name = name_;
     _symbol = symbol_;
     maxBatchSize = maxBatchSize_;

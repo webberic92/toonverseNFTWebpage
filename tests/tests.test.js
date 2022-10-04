@@ -7,23 +7,29 @@ const web3 = new Web3(ganache.provider());
 const contractABI = require("../web3/toonverseABI.json");
 const contractByteCode = require("../web3/toonverseByteCode.json");
 
-let accounts;
+let ACCOUNTS;
 let OWNER_ACCOUNT;
-let DEV_ACCOUNT;
+let DEV_ACCOUNT = "0x3883552f0eDC54731623952c37e6cdbC2b7eaF36"
 let USER1_ACCOUNT;
 let TOONVERSE_CONTRACT;
 let PRICE;
+let PRICE_IN_WEI =38000000000000000;
 let MAX_MINT_AMOUNT = 20;
 let MAX_NFT_SUPPLY = 6666;
+let INITIAL_OWNER_MINTS = 100;
+let INITIAL_DEV_MINTS = 25;
+let INITIAL_PARTNER_MINTS = 100;
+
+
 
 // beforeEach(async () => {
 // });
 
 describe("Toonverse initialization logic.", async () => {
   it("Contract Initialization Tests.", async () => {
-    accounts = await web3.eth.getAccounts();
-    OWNER_ACCOUNT = accounts[0];
-    USER1_ACCOUNT = accounts[1];
+    ACCOUNTS = await web3.eth.getAccounts();
+    OWNER_ACCOUNT = ACCOUNTS[0];
+    USER1_ACCOUNT = ACCOUNTS[1];
     TOONVERSE_CONTRACT = await new web3.eth.Contract(contractABI)
       .deploy({ data: contractByteCode.object })
       .send({ from: OWNER_ACCOUNT, gas: "20000000" });
@@ -33,40 +39,40 @@ describe("Toonverse initialization logic.", async () => {
   it("Name is Toonverse, Symbol is TOON, maxMintAmount is 20, Maxsupply 6666.", async () => {
     assert.equal("Toonverse", await TOONVERSE_CONTRACT.methods.name().call());
     assert.equal("TOON", await TOONVERSE_CONTRACT.methods.symbol().call());
-    assert.equal(MAX_MINT_AMOUNT, await TOONVERSE_CONTRACT.methods.maxMintAmount().call());
-    assert.equal(MAX_NFT_SUPPLY, await TOONVERSE_CONTRACT.methods.maxSupply().call());
+    assert.equal(MAX_MINT_AMOUNT, await TOONVERSE_CONTRACT.methods.MAX_MINT_AMOUNT().call());
+    assert.equal(MAX_NFT_SUPPLY, await TOONVERSE_CONTRACT.methods.MAX_SUPPLY().call());
   });
 
-  it("Number in circulation is 1 initially,Cost is .06", async () => {
-    assert.equal(1, await TOONVERSE_CONTRACT.methods.totalSupply().call());
+  it("Number in circulation is 1 initially,Cost is .038", async () => {
+    assert.equal(175, await TOONVERSE_CONTRACT.methods.totalSupply().call());
     assert.equal(
-      60000000000000000n,
-      await TOONVERSE_CONTRACT.methods.cost().call()
+      PRICE_IN_WEI,
+      await TOONVERSE_CONTRACT.methods.COST().call()
     );
   });
 
   it("Contract has owner and users,baseURI and notRevealedURI.", async () => {
     assert.equal(
       OWNER_ACCOUNT,
-      await TOONVERSE_CONTRACT.methods.owner().call()
+      await TOONVERSE_CONTRACT.methods.OWNER().call()
     );
     assert.notEqual(
       USER1_ACCOUNT,
-      await TOONVERSE_CONTRACT.methods.owner().call()
+      await TOONVERSE_CONTRACT.methods.OWNER().call()
     );
-    assert.ok(await TOONVERSE_CONTRACT.methods.baseURI().call());
-    assert.ok(await TOONVERSE_CONTRACT.methods.notRevealedUri().call());
+    assert.ok(await TOONVERSE_CONTRACT.methods.BASE_URI().call());
+    assert.ok(await TOONVERSE_CONTRACT.methods.NOT_REVEALED_URI().call());
   });
 
   it("Contract is paused, Not revealed, and whitelist only.", async () => {
-    assert.equal(true, await TOONVERSE_CONTRACT.methods.paused().call());
-    assert.equal(false, await TOONVERSE_CONTRACT.methods.revealed().call());
-    assert.equal(true, await TOONVERSE_CONTRACT.methods.whiteListOnly().call());
+    assert.equal(true, await TOONVERSE_CONTRACT.methods.PAUSED().call());
+    assert.equal(false, await TOONVERSE_CONTRACT.methods.REVEALED().call());
+    assert.equal(true, await TOONVERSE_CONTRACT.methods.IS_WHITELIST_ONLY().call());
   });
 
   it("Merkleroot has an entry, not revealed URI has entry.", async () => {
-    assert.ok(await TOONVERSE_CONTRACT.methods.whiteListMerkleRoot().call());
-    assert.ok(await TOONVERSE_CONTRACT.methods.notRevealedUri().call());
+    assert.ok(await TOONVERSE_CONTRACT.methods.WHITELIST_MERKLE_ROOT().call());
+    assert.ok(await TOONVERSE_CONTRACT.methods.NOT_REVEALED_URI().call());
   });
 
   it("Only Owner Can setWhiteListMerkleRoot.", async () => {
@@ -182,10 +188,10 @@ describe("Toonverse Minting Logic. ", async () => {
     let numOwned = await TOONVERSE_CONTRACT.methods
       .balanceOf(OWNER_ACCOUNT)
       .call();
-    assert.equal(2, numOwned);
-    for (let i = 0; i < numOwned; i++) {
+    assert.equal(INITIAL_OWNER_MINTS + 2, numOwned);
+    for (let i = 0; i < INITIAL_OWNER_MINTS; i++) {
       assert.equal(
-        i + 1,
+        i,
         await TOONVERSE_CONTRACT.methods
           .tokenOfOwnerByIndex(OWNER_ACCOUNT, i)
           .call()
@@ -206,11 +212,11 @@ describe("Toonverse Minting Logic. ", async () => {
 
     for (
       let i = 2;
-      i < (await TOONVERSE_CONTRACT.methods.balanceOf(OWNER_ACCOUNT).call());
+      i < (await TOONVERSE_CONTRACT.methods.balanceOf(OWNER_ACCOUNT).call()-INITIAL_DEV_MINTS - INITIAL_PARTNER_MINTS);
       i++
     ) {
       assert.equal(
-        i + 1,
+        i  ,
         await TOONVERSE_CONTRACT.methods
           .tokenOfOwnerByIndex(OWNER_ACCOUNT, i)
           .call()
@@ -251,7 +257,7 @@ describe("Toonverse Minting Logic. ", async () => {
   it("URI for token URI (1) is not revealedURI", async () => {
     assert.equal(
       await TOONVERSE_CONTRACT.methods.tokenURI(1).call(),
-      await TOONVERSE_CONTRACT.methods.notRevealedUri().call()
+      await TOONVERSE_CONTRACT.methods.NOT_REVEALED_URI().call()
     );
   });
 
@@ -263,13 +269,13 @@ describe("Toonverse Minting Logic. ", async () => {
     await TOONVERSE_CONTRACT.methods.setPaused(false).send({
       from: OWNER_ACCOUNT,
     });
-    assert.equal(false, await TOONVERSE_CONTRACT.methods.paused().call());
+    assert.equal(false, await TOONVERSE_CONTRACT.methods.PAUSED().call());
     await TOONVERSE_CONTRACT.methods.setWhiteListOnly(false).send({
       from: OWNER_ACCOUNT,
     });
     assert.equal(
       false,
-      await TOONVERSE_CONTRACT.methods.whiteListOnly().call()
+      await TOONVERSE_CONTRACT.methods.IS_WHITELIST_ONLY().call()
     );
 
     //verify normal user starts with 0 nfts and then mints with 2 only when sending price.
@@ -291,7 +297,7 @@ describe("Toonverse Minting Logic. ", async () => {
     assert.equal(false, bool);
 
     //verify can  mint when sending money
-    PRICE = await TOONVERSE_CONTRACT.methods.cost().call();
+    PRICE = await TOONVERSE_CONTRACT.methods.COST().call();
     await TOONVERSE_CONTRACT.methods.mint(2).send({
       from: USER1_ACCOUNT,
       value: PRICE * 2,

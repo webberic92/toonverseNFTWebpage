@@ -234,6 +234,19 @@
 	{
 		"inputs": [
 			{
+				"internalType": "address",
+				"name": "_address",
+				"type": "address"
+			}
+		],
+		"name": "setDev",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
 				"internalType": "string",
 				"name": "_notRevealedURI",
 				"type": "string"
@@ -358,7 +371,7 @@
 	},
 	{
 		"inputs": [],
-		"name": "baseExtension",
+		"name": "BASE_EXTENSION",
 		"outputs": [
 			{
 				"internalType": "string",
@@ -371,7 +384,7 @@
 	},
 	{
 		"inputs": [],
-		"name": "baseURI",
+		"name": "BASE_URI",
 		"outputs": [
 			{
 				"internalType": "string",
@@ -384,12 +397,25 @@
 	},
 	{
 		"inputs": [],
-		"name": "cost",
+		"name": "COST",
 		"outputs": [
 			{
 				"internalType": "uint256",
 				"name": "",
 				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "DEV",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
 			}
 		],
 		"stateMutability": "view",
@@ -409,6 +435,19 @@
 				"internalType": "address",
 				"name": "",
 				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "IS_WHITELIST_ONLY",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
 			}
 		],
 		"stateMutability": "view",
@@ -440,7 +479,7 @@
 	},
 	{
 		"inputs": [],
-		"name": "maxMintAmount",
+		"name": "MAX_MINT_AMOUNT",
 		"outputs": [
 			{
 				"internalType": "uint256",
@@ -453,7 +492,7 @@
 	},
 	{
 		"inputs": [],
-		"name": "maxSupply",
+		"name": "MAX_SUPPLY",
 		"outputs": [
 			{
 				"internalType": "uint256",
@@ -492,7 +531,7 @@
 	},
 	{
 		"inputs": [],
-		"name": "notRevealedUri",
+		"name": "NOT_REVEALED_URI",
 		"outputs": [
 			{
 				"internalType": "string",
@@ -505,7 +544,7 @@
 	},
 	{
 		"inputs": [],
-		"name": "owner",
+		"name": "OWNER",
 		"outputs": [
 			{
 				"internalType": "address",
@@ -537,7 +576,20 @@
 	},
 	{
 		"inputs": [],
-		"name": "paused",
+		"name": "PARTNER",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "PAUSED",
 		"outputs": [
 			{
 				"internalType": "bool",
@@ -550,7 +602,7 @@
 	},
 	{
 		"inputs": [],
-		"name": "revealed",
+		"name": "REVEALED",
 		"outputs": [
 			{
 				"internalType": "bool",
@@ -676,7 +728,7 @@
 				"type": "address"
 			}
 		],
-		"name": "whiteListClaimed",
+		"name": "WHITELIST_CLAIMED",
 		"outputs": [
 			{
 				"internalType": "bool",
@@ -689,25 +741,12 @@
 	},
 	{
 		"inputs": [],
-		"name": "whiteListMerkleRoot",
+		"name": "WHITELIST_MERKLE_ROOT",
 		"outputs": [
 			{
 				"internalType": "bytes32",
 				"name": "",
 				"type": "bytes32"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "whiteListOnly",
-		"outputs": [
-			{
-				"internalType": "bool",
-				"name": "",
-				"type": "bool"
 			}
 		],
 		"stateMutability": "view",
