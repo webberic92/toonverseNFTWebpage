@@ -9,15 +9,13 @@ const contractByteCode = require("../web3/toonverseByteCode.json");
 
 let ACCOUNTS;
 let OWNER_ACCOUNT;
-let DEV_ACCOUNT = "0x3883552f0eDC54731623952c37e6cdbC2b7eaF36"
+let DEV_ACCOUNT = "0x3883552f0eDC54731623952c37e6cdbC2b7eaF36";
 let USER1_ACCOUNT;
 let TOONVERSE_CONTRACT;
 let PRICE;
-let PRICE_IN_WEI =38000000000000000;
+let PRICE_IN_WEI = 38000000000000000;
 let MAX_MINT_AMOUNT = 50;
 let MAX_NFT_SUPPLY = 6666;
-
-
 
 // beforeEach(async () => {
 // });
@@ -36,16 +34,19 @@ describe("Toonverse initialization logic.", async () => {
   it("Name is Toonverse, Symbol is TOON, maxMintAmount is 20, Maxsupply 6666.", async () => {
     assert.equal("Toonverse", await TOONVERSE_CONTRACT.methods.name().call());
     assert.equal("TOON", await TOONVERSE_CONTRACT.methods.symbol().call());
-    assert.equal(MAX_MINT_AMOUNT, await TOONVERSE_CONTRACT.methods.MAX_MINT_AMOUNT().call());
-    assert.equal(MAX_NFT_SUPPLY, await TOONVERSE_CONTRACT.methods.MAX_SUPPLY().call());
+    assert.equal(
+      MAX_MINT_AMOUNT,
+      await TOONVERSE_CONTRACT.methods.MAX_MINT_AMOUNT().call()
+    );
+    assert.equal(
+      MAX_NFT_SUPPLY,
+      await TOONVERSE_CONTRACT.methods.MAX_SUPPLY().call()
+    );
   });
 
   it("Number in circulation is 0 initially,Cost is .038", async () => {
     assert.equal(0, await TOONVERSE_CONTRACT.methods.totalSupply().call());
-    assert.equal(
-      PRICE_IN_WEI,
-      await TOONVERSE_CONTRACT.methods.COST().call()
-    );
+    assert.equal(PRICE_IN_WEI, await TOONVERSE_CONTRACT.methods.COST().call());
   });
 
   it("Contract has owner and users,baseURI and notRevealedURI.", async () => {
@@ -64,7 +65,10 @@ describe("Toonverse initialization logic.", async () => {
   it("Contract is paused, Not revealed, and whitelist only.", async () => {
     assert.equal(true, await TOONVERSE_CONTRACT.methods.PAUSED().call());
     assert.equal(false, await TOONVERSE_CONTRACT.methods.REVEALED().call());
-    assert.equal(true, await TOONVERSE_CONTRACT.methods.IS_WHITELIST_ONLY().call());
+    assert.equal(
+      true,
+      await TOONVERSE_CONTRACT.methods.IS_WHITELIST_ONLY().call()
+    );
   });
 
   it("Merkleroot has an entry, not revealed URI has entry.", async () => {
@@ -179,20 +183,16 @@ describe("Toonverse initialization logic.", async () => {
 
 //TODO: Owner can call OWNER MINT
 
-
-
-
 describe("Toonverse Minting Logic. ", async () => {
   it("Owner can mint for free.", async () => {
-
     await TOONVERSE_CONTRACT.methods.mint(2).send({
       from: OWNER_ACCOUNT,
-      gas: 1000000
-     });
+      gas: 1000000,
+    });
     let numOwned = await TOONVERSE_CONTRACT.methods
       .balanceOf(OWNER_ACCOUNT)
       .call();
-    assert.equal( 2, numOwned);
+    assert.equal(2, numOwned);
     for (let i = 0; i < numOwned; i++) {
       assert.equal(
         i,
@@ -220,7 +220,7 @@ describe("Toonverse Minting Logic. ", async () => {
       i++
     ) {
       assert.equal(
-        i  ,
+        i,
         await TOONVERSE_CONTRACT.methods
           .tokenOfOwnerByIndex(OWNER_ACCOUNT, i)
           .call()
@@ -305,8 +305,7 @@ describe("Toonverse Minting Logic. ", async () => {
     await TOONVERSE_CONTRACT.methods.mint(2).send({
       from: USER1_ACCOUNT,
       value: PRICE * 2,
-      gas: 1000000
-
+      gas: 1000000,
     });
     assert.equal(
       2,
@@ -314,50 +313,83 @@ describe("Toonverse Minting Logic. ", async () => {
     );
   });
 
-  // it("Account has balance of 2 sales.", async () => {
-  //   assert.equal(
-  //     PRICE * 2,
-  //     await web3.eth.getBalance(TOONVERSE_CONTRACT.options.address)
-  //   );
-  // });
+  //Create constants for AUX_WALLET
+  it("Account has balance of 2 sales.", async () => {
+    console.log(
+      await web3.eth.getBalance("0x3883552f0eDC54731623952c37e6cdbC2b7eaF36")
+    );
+    assert(
+      0.001 <
+        (await web3.eth.getBalance(
+          "0x3883552f0eDC54731623952c37e6cdbC2b7eaF36"
+        ))
+    );
+  });
 
-  // it("Only Owner Can withdraw.", async () => {
-  //   let currentContractBalance = await web3.eth.getBalance(
-  //     TOONVERSE_CONTRACT.options.address
-  //   );
-  //   assert.equal(PRICE * 2, currentContractBalance);
-  //   //First verify normal user CANT withdraw.
-  //   let bool = true;
-  //   try {
-  //     await TOONVERSE_CONTRACT.methods.withdraw(600).send({
-  //       from: USER1_ACCOUNT,
-  //     });
-  //   } catch (error) {
-  //     bool = false;
-  //   }
-  //   assert.equal(false, bool);
-  //   //Second get owners balance and verify they can withdraw.
-  //   assert.equal(PRICE * 2, currentContractBalance);
-  //   let origAdminsBalance = await web3.eth.getBalance(OWNER_ACCOUNT);
-  //   await TOONVERSE_CONTRACT.methods.withdraw(BigInt(PRICE * 2)).send({
-  //     from: OWNER_ACCOUNT,
-  //   });
+  it("Only Owner Can withdraw.", async () => {
+    let currentContractBalance = await web3.eth.getBalance(
+      TOONVERSE_CONTRACT.options.address
+    );
+    console.log(
+      "TOONVERSE_CONTRACT.options.address " + TOONVERSE_CONTRACT.options.address
+    ); //0
+    console.log(currentContractBalance); //0
 
-  //   assert(
-  //     BigInt(origAdminsBalance) <
-  //       BigInt(await web3.eth.getBalance(OWNER_ACCOUNT))
-  //   );
-  //   assert(
-  //     BigInt(currentContractBalance) >
-  //       BigInt(await web3.eth.getBalance(TOONVERSE_CONTRACT.options.address))
-  //   );
-  //   assert.equal(
-  //     0,
-  //     await web3.eth.getBalance(TOONVERSE_CONTRACT.options.address)
-  //   );
-  // });
+    let accountaddyress = await web3.eth.getBalance(ACCOUNTS[4]);
+    console.log(accountaddyress); //999888882151615151
+
+  
+      web3.eth.sendTransaction({
+        from: ACCOUNTS[4],
+        to: TOONVERSE_CONTRACT.options.address,
+        value: 1000000000000000000,
+        gas: "20000000",
+        gasPrice: "500",
+      });
+    
+
+     currentContractBalance = await web3.eth.getBalance(
+      TOONVERSE_CONTRACT.options.address
+    );
+    console.log("currentContractBalance " + currentContractBalance); //0
+     account4Address = await web3.eth.getBalance(ACCOUNTS[4]);
+    console.log("account4Address " + account4Address); //999888882151615151
+
+    //  currentContractBalance = await web3.eth.getBalance(
+    //   TOONVERSE_CONTRACT.options.address
+    // );
+    // console.log(currentContractBalance)
+    //First verify normal user CANT withdraw.
+    //   let bool = true;
+    //   try {
+    //     await TOONVERSE_CONTRACT.methods.withdraw(67640000000000000).send({
+    //       from: USER1_ACCOUNT,
+    //     });
+    //   } catch (error) {
+    //     bool = false;
+    //   }
+    //   assert.equal(false, bool);
+    //   //Second get owners balance and verify they can withdraw.
+    //   // assert.equal(PRICE * 2, currentContractBalance);
+    //   let origAdminsBalance = await web3.eth.getBalance(OWNER_ACCOUNT);
+    //   await TOONVERSE_CONTRACT.methods.withdraw(BigInt(67640000000000000)).send({
+    //     from: OWNER_ACCOUNT,
+    //   });
+
+    //   assert(
+    //     BigInt(origAdminsBalance) <
+    //       BigInt(await web3.eth.getBalance(OWNER_ACCOUNT))
+    //   );
+    //   assert(
+    //     BigInt(currentContractBalance) >
+    //       BigInt(await web3.eth.getBalance(TOONVERSE_CONTRACT.options.address))
+    //   );
+    //   assert.equal(
+    //     0,
+    //     await web3.eth.getBalance(TOONVERSE_CONTRACT.options.address)
+    //   );
+  });
 });
-
 
 //TESTS to still be written.
 //Can white list user mint?
