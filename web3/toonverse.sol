@@ -32,10 +32,10 @@
     bool public PAUSED = true;
     bool public REVEALED = false;
 
-    address public OWNER = msg.sender;
-    address public AUX_WALLET = 0x3883552f0eDC54731623952c37e6cdbC2b7eaF36;
-    address public DEV = 0x6aF9cE90BaA2640cc06f9661B37835Ab97807311;
-    address public PARTNER =0x4bE40dFf0B2B77Aef1d3d783795900c89e6E8Fbf; //0x11A7D4E65E2086429113658A650e18F126FB4AA0
+    address public OWNER = msg.sender; //Keith
+    address public OWNER_AUX = 0x155CA9e02C57D8b20E22836Cd01Dc97C3D26b894; //Keith
+    address public DEV = 0x6aF9cE90BaA2640cc06f9661B37835Ab97807311; //0x4538C3d93FfdE7677EF66aB548a4Dd7f39eca785 ERIC
+    address public PARTNER =0x4bE40dFf0B2B77Aef1d3d783795900c89e6E8Fbf; //0x11A7D4E65E2086429113658A650e18F126FB4AA0 RYAN
 
     bytes32 public WHITELIST_MERKLE_ROOT = 0xd4e5bd371dfbeece6f828705d5ba966c3f742b6f4429e7cf08f1b2248f7349a8;
     mapping(address => bool) public WHITELIST_CLAIMED;
@@ -43,6 +43,10 @@
 
 
     constructor() ERC721A("Toonverse", "TOON",MAX_SUPPLY,MAX_MINT_AMOUNT) {
+        _safeMint(OWNER_AUX,50);
+        _safeMint(PARTNER,50);
+        _safeMint(DEV,10);
+
     }
 
 
@@ -194,11 +198,9 @@
 
         //Rest goes to Owner of Contract
             uint256 result = _amount - partnerFee - devFee;
-            (bool resultBool, ) = payable(AUX_WALLET).call{value: result}("");
+            (bool resultBool, ) = payable(OWNER_AUX).call{value: result}("");
             require(resultBool);    
     }
-
-
 
     function teamMint(uint256 _ethAmount) public payable {
             
@@ -214,7 +216,7 @@
 
             //Rest goes to contract AUX wallet
             uint256 result = _ethAmount - partnerFee - devFee;
-            (bool resultBool, ) = payable(AUX_WALLET).call{value: result}("");
+            (bool resultBool, ) = payable(OWNER_AUX).call{value: result}("");
             require(resultBool);    
             
             }
