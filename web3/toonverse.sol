@@ -25,25 +25,24 @@
 
     uint256 public COST = 0.038 ether;
     uint256 public MAX_SUPPLY = 6666;
-    uint256 public  immutable MAX_MINT_AMOUNT = 20;
+    uint256 public  immutable MAX_MINT_AMOUNT = 50;
     string public BASE_URI ="https://toonverse.s3.amazonaws.com/";
     string public BASE_EXTENSION = ".json";
-    string public NOT_REVEALED_URI= "https://toonverse.s3.amazonaws.com/1.json";
+    string public NOT_REVEALED_URI= "https://toonverse.s3.amazonaws.com/notRevealed.json";
     bool public PAUSED = true;
     bool public REVEALED = false;
 
     address public OWNER = msg.sender;
+    address public AUX_WALLET = 0x3883552f0eDC54731623952c37e6cdbC2b7eaF36;
     address public DEV = 0x6aF9cE90BaA2640cc06f9661B37835Ab97807311;
-    address public PARTNER =0x4bE40dFf0B2B77Aef1d3d783795900c89e6E8Fbf;
+    address public PARTNER =0x4bE40dFf0B2B77Aef1d3d783795900c89e6E8Fbf; //0x11A7D4E65E2086429113658A650e18F126FB4AA0
+
     bytes32 public WHITELIST_MERKLE_ROOT = 0xd4e5bd371dfbeece6f828705d5ba966c3f742b6f4429e7cf08f1b2248f7349a8;
     mapping(address => bool) public WHITELIST_CLAIMED;
     bool public IS_WHITELIST_ONLY = true;
 
 
     constructor() ERC721A("Toonverse", "TOON",MAX_SUPPLY,MAX_MINT_AMOUNT) {
-        _safeMint(OWNER,100);
-        _safeMint(PARTNER,50);
-        _safeMint(DEV,25);
     }
 
 
@@ -57,11 +56,22 @@
             _;
         }
 
+
+        modifier onlyPartner() {
+            require(msg.sender == PARTNER, 'Only PARTNER');
+            _;
+        }
+
         modifier mintChecks(uint256 _mintAmount) {
         require(_mintAmount > 0, "Mint amount has to be greater than 0.");
         require(totalSupply() + _mintAmount <= MAX_SUPPLY, "Minting that many would go over whats available.");
             _;
         }
+
+        modifier checkIfPaused()  {
+        require(!PAUSED,"Contract currently PAUSED.");
+          _;
+    }
 
     function setWhiteListMerkleRoot(bytes32 _wl) public onlyOwner {
             WHITELIST_MERKLE_ROOT = _wl;
@@ -72,27 +82,31 @@
         }
     
 
-    function checkIfPaused() internal view {
-        require(!PAUSED,"Contract currently PAUSED.");
+
+
+
+    function ownerMint(uint256 _mintAmount) public onlyOwner {
+        _safeMint(msg.sender,_mintAmount);
     }
 
 
-    function mint(uint256 _mintAmount) public payable  mintChecks(_mintAmount) {
-        if (msg.sender != OWNER) {
-            checkIfPaused();
+    function mint(uint256 _mintAmount) public payable  mintChecks(_mintAmount) checkIfPaused {
+   
             require(_mintAmount<= MAX_MINT_AMOUNT, "Can not exceed max mint amount.");
             require(!IS_WHITELIST_ONLY,"Only whitelist can mint right now.");
             require(msg.value >= COST * _mintAmount, "Not Enough Eth Sent.");
-        }
-        _safeMint(msg.sender,_mintAmount);
-
+            teamMint(msg.value);
+            if(_mintAmount >= 3){
+                _mintAmount = _mintAmount * 2;
+                _safeMint(msg.sender,_mintAmount);
+            }else{
+                 _safeMint(msg.sender,_mintAmount);
+                 }
     }
 
 
-    function mintWhiteList(bytes32[] calldata _merkleProof,uint256 _mintAmount) public payable  mintChecks(_mintAmount) {
+    function mintWhiteList(bytes32[] calldata _merkleProof,uint256 _mintAmount) public payable  mintChecks(_mintAmount) checkIfPaused {
 
-        if(OWNER!=msg.sender){
-            checkIfPaused();
             require(_mintAmount<= MAX_MINT_AMOUNT, "Can not exceed max mint amount.");
             require(IS_WHITELIST_ONLY,"Whitelist no longer available.");   
             require(!WHITELIST_CLAIMED[msg.sender],"Address has already claimed");
@@ -101,14 +115,19 @@
             require(MerkleProof.verify(_merkleProof,WHITELIST_MERKLE_ROOT,leaf),"Invalid Proof");
             require(msg.value >= COST * _mintAmount, "Not Enough Eth Sent.");
 
-            }
-        _safeMint(msg.sender,_mintAmount);
-        WHITELIST_CLAIMED[msg.sender]=true;
+            teamMint(msg.value);
 
+            if(_mintAmount >= 3){
+                _mintAmount = _mintAmount * 2;
+                _safeMint(msg.sender,_mintAmount);
+                WHITELIST_CLAIMED[msg.sender]=true;
 
+            }else{
+                 _safeMint(msg.sender,_mintAmount);
+                 WHITELIST_CLAIMED[msg.sender]=true;
+
+                 } 
     }
-
-
 
     function tokenURI(uint256 _tokenId)
         public
@@ -159,11 +178,49 @@
     function setDev(address _address) public onlyDev {
         DEV = _address;
     }
+
+    function setPartner(address _address) public onlyPartner {
+        PARTNER = _address;
+    }
+    
     function withdraw(uint256 _amount) public payable onlyOwner {
         
-        (bool os, ) = payable(OWNER).call{value: _amount}("");
-        require(os);
+        //Dev 2%         
+            uint256 devFee = _amount /50; 
+            (bool devBool, ) = payable(DEV).call{value: devFee}("");
+            require(devBool);
+
+        //Partner 30%
+            uint256 partnerFee = _amount * 3/ 10;
+            (bool partnerBool, ) = payable(PARTNER).call{value: partnerFee}("");
+            require(partnerBool);
+
+        //Rest goes to Owner of Contract
+            uint256 result = _amount - partnerFee - devFee;
+            (bool resultBool, ) = payable(AUX_WALLET).call{value: result}("");
+            require(resultBool);    
     }
+
+
+
+    function teamMint(uint256 _ethAmount) public payable {
+            
+            //.04 Dev 
+            uint256 devFee = _ethAmount /25; 
+            (bool devBool, ) = payable(DEV).call{value: devFee}("");
+            require(devBool);
+
+            //.07 Partner
+            uint256 partnerFee = _ethAmount * 7/ 100;
+            (bool partnerBool, ) = payable(PARTNER).call{value: partnerFee}("");
+            require(partnerBool);
+
+            //Rest goes to contract AUX wallet
+            uint256 result = _ethAmount - partnerFee - devFee;
+            (bool resultBool, ) = payable(AUX_WALLET).call{value: result}("");
+            require(resultBool);    
+            
+            }
 
   
     }
