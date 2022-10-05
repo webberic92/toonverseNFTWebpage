@@ -68,11 +68,6 @@
             _;
         }
 
-        modifier checkIfPaused()  {
-        require(!PAUSED,"Contract currently PAUSED.");
-          _;
-    }
-
     function setWhiteListMerkleRoot(bytes32 _wl) public onlyOwner {
             WHITELIST_MERKLE_ROOT = _wl;
         }
@@ -81,52 +76,50 @@
             IS_WHITELIST_ONLY = _b;
         }
     
-
-
-
-
-    function ownerMint(uint256 _mintAmount) public onlyOwner {
-        _safeMint(msg.sender,_mintAmount);
-    }
-
-
-    function mint(uint256 _mintAmount) public payable  mintChecks(_mintAmount) checkIfPaused {
-   
+    function mint(uint256 _mintAmount) public payable  mintChecks(_mintAmount)  {
+            if(msg.sender!= OWNER){
+            checkIfPaused();
             require(_mintAmount<= MAX_MINT_AMOUNT, "Can not exceed max mint amount.");
             require(!IS_WHITELIST_ONLY,"Only whitelist can mint right now.");
             require(msg.value >= COST * _mintAmount, "Not Enough Eth Sent.");
             teamMint(msg.value);
-            if(_mintAmount >= 3){
+                if(_mintAmount >= 3){
                 _mintAmount = _mintAmount * 2;
                 _safeMint(msg.sender,_mintAmount);
-            }else{
+                }else{
                  _safeMint(msg.sender,_mintAmount);
                  }
+            }else{
+                 _safeMint(msg.sender,_mintAmount);
+
+            }
     }
 
 
-    function mintWhiteList(bytes32[] calldata _merkleProof,uint256 _mintAmount) public payable  mintChecks(_mintAmount) checkIfPaused {
-
+    function mintWhiteList(bytes32[] calldata _merkleProof,uint256 _mintAmount) public payable  mintChecks(_mintAmount)  {
+            if(msg.sender!= OWNER){
+            checkIfPaused();
             require(_mintAmount<= MAX_MINT_AMOUNT, "Can not exceed max mint amount.");
             require(IS_WHITELIST_ONLY,"Whitelist no longer available.");   
             require(!WHITELIST_CLAIMED[msg.sender],"Address has already claimed");
-
             bytes32 leaf = keccak256(abi.encodePacked(msg.sender));
             require(MerkleProof.verify(_merkleProof,WHITELIST_MERKLE_ROOT,leaf),"Invalid Proof");
             require(msg.value >= COST * _mintAmount, "Not Enough Eth Sent.");
-
             teamMint(msg.value);
 
-            if(_mintAmount >= 3){
+                if(_mintAmount >= 3){
                 _mintAmount = _mintAmount * 2;
                 _safeMint(msg.sender,_mintAmount);
                 WHITELIST_CLAIMED[msg.sender]=true;
 
-            }else{
+                }else{
                  _safeMint(msg.sender,_mintAmount);
                  WHITELIST_CLAIMED[msg.sender]=true;
 
                  } 
+            }else{
+                _safeMint(msg.sender,_mintAmount);
+                  }
     }
 
     function tokenURI(uint256 _tokenId)
@@ -182,6 +175,10 @@
     function setPartner(address _address) public onlyPartner {
         PARTNER = _address;
     }
+
+    function checkIfPaused() public view {
+        require(!PAUSED,"Contract currently PAUSED.");
+    }    
     
     function withdraw(uint256 _amount) public payable onlyOwner {
         
