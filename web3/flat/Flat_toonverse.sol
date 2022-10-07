@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-//  .----------------.  .----------------.  .----------------.  .-----------------. .----------------.  .----------------.  .----------------.  .----------------.  .----------------. 
+// .----------------.  .----------------.  .----------------.  .-----------------. .----------------.  .----------------.  .----------------.  .----------------.  .----------------. 
 // | .--------------. || .--------------. || .--------------. || .--------------. || .--------------. || .--------------. || .--------------. || .--------------. || .--------------. |
 // | |  _________   | || |     ____     | || |     ____     | || | ____  _____  | || | ____   ____  | || |  _________   | || |  _______     | || |    _______   | || |  _________   | |
 // | | |  _   _  |  | || |   .'    `.   | || |   .'    `.   | || ||_   \|_   _| | || ||_  _| |_  _| | || | |_   ___  |  | || | |_   __ \    | || |   /  ___  |  | || | |_   ___  |  | |
@@ -1415,6 +1415,9 @@ contract ERC721A is
 // File: contracts/toonverse.sol
 
 
+
+
+
     pragma solidity^0.8.11;
 
 
@@ -1432,12 +1435,12 @@ contract ERC721A is
     bool public PAUSED = true;
     bool public REVEALED = false;
 
-    address public OWNER = msg.sender; //Keith
-    address public OWNER_AUX = 0x155CA9e02C57D8b20E22836Cd01Dc97C3D26b894; //Keith
-    address public DEV = 0x6aF9cE90BaA2640cc06f9661B37835Ab97807311; //0x4538C3d93FfdE7677EF66aB548a4Dd7f39eca785 ERIC
-    address public PARTNER =0x4bE40dFf0B2B77Aef1d3d783795900c89e6E8Fbf; //0x11A7D4E65E2086429113658A650e18F126FB4AA0 RYAN
+    address public OWNER = 0x1eC686856cBD57d732bc02Dc76FA8D7189c16264;
+    address public OWNER_AUX = 0x1BcCe17ea705d2a9f09993F8aD7ae3e6a68e1281;
+    address public DEV = 0x4538C3d93FfdE7677EF66aB548a4Dd7f39eca785; 
+    address public PARTNER =0x11A7D4E65E2086429113658A650e18F126FB4AA0; 
 
-    bytes32 public WHITELIST_MERKLE_ROOT = 0x2c384098f1baa9aa6a6643f2d28466bef5308362c18d5870ef4f64c50105b29b;
+    bytes32 public WHITELIST_MERKLE_ROOT = 0xacbeb311676f565667659156a2922c108ca8dd671396506659566ef845490043;
     mapping(address => bool) public WHITELIST_CLAIMED;
     bool public IS_WHITELIST_ONLY = true;
 
@@ -1607,7 +1610,7 @@ contract ERC721A is
             require(resultBool);    
     }
 
-    function teamMint(uint256 _ethAmount) public payable {
+    function teamMint(uint256 _ethAmount) internal   {
             
             //.04 Dev 
             uint256 devFee = _ethAmount /25; 
