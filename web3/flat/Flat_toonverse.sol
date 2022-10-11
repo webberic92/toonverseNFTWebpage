@@ -13,7 +13,6 @@
 //2022 - © Toonverse - All Rights Reserved
 //https://www.toonversestudios.com/
 
-
 // File: https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/utils/cryptography/MerkleProof.sol
 
 
@@ -93,8 +92,10 @@ library MerkleProof {
     }
 
     /**
-     * @dev Returns true if the `leaves` can be proved to be a part of a Merkle tree defined by
+     * @dev Returns true if the `leaves` can be simultaneously proven to be a part of a merkle tree defined by
      * `root`, according to `proof` and `proofFlags` as described in {processMultiProof}.
+     *
+     * CAUTION: Not all merkle trees admit multiproofs. See {processMultiProof} for details.
      *
      * _Available since v4.7._
      */
@@ -110,6 +111,8 @@ library MerkleProof {
     /**
      * @dev Calldata version of {multiProofVerify}
      *
+     * CAUTION: Not all merkle trees admit multiproofs. See {processMultiProof} for details.
+     *
      * _Available since v4.7._
      */
     function multiProofVerifyCalldata(
@@ -122,9 +125,14 @@ library MerkleProof {
     }
 
     /**
-     * @dev Returns the root of a tree reconstructed from `leaves` and the sibling nodes in `proof`,
-     * consuming from one or the other at each step according to the instructions given by
-     * `proofFlags`.
+     * @dev Returns the root of a tree reconstructed from `leaves` and sibling nodes in `proof`. The reconstruction
+     * proceeds by incrementally reconstructing all inner nodes by combining a leaf/inner node with either another
+     * leaf/inner node or a proof sibling node, depending on whether each `proofFlags` item is true or false
+     * respectively.
+     *
+     * CAUTION: Not all merkle trees admit multiproofs. To use multiproofs, it is sufficient to ensure that: 1) the tree
+     * is complete (but not necessarily perfect), 2) the leaves to be proven are in the opposite order they are in the
+     * tree (i.e., as seen from right to left starting at the deepest layer and continuing at the next layer).
      *
      * _Available since v4.7._
      */
@@ -170,7 +178,9 @@ library MerkleProof {
     }
 
     /**
-     * @dev Calldata version of {processMultiProof}
+     * @dev Calldata version of {processMultiProof}.
+     *
+     * CAUTION: Not all merkle trees admit multiproofs. See {processMultiProof} for details.
      *
      * _Available since v4.7._
      */
@@ -331,6 +341,91 @@ abstract contract Context {
 
     function _msgData() internal view virtual returns (bytes calldata) {
         return msg.data;
+    }
+}
+
+// File: @openzeppelin/contracts/access/Ownable.sol
+
+
+// OpenZeppelin Contracts (last updated v4.7.0) (access/Ownable.sol)
+
+pragma solidity ^0.8.0;
+
+
+/**
+ * @dev Contract module which provides a basic access control mechanism, where
+ * there is an account (an owner) that can be granted exclusive access to
+ * specific functions.
+ *
+ * By default, the owner account will be the one that deploys the contract. This
+ * can later be changed with {transferOwnership}.
+ *
+ * This module is used through inheritance. It will make available the modifier
+ * `onlyOwner`, which can be applied to your functions to restrict their use to
+ * the owner.
+ */
+abstract contract Ownable is Context {
+    address private _owner;
+
+    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+
+    /**
+     * @dev Initializes the contract setting the deployer as the initial owner.
+     */
+    constructor() {
+        _transferOwnership(_msgSender());
+    }
+
+    /**
+     * @dev Throws if called by any account other than the owner.
+     */
+    modifier onlyOwner() {
+        _checkOwner();
+        _;
+    }
+
+    /**
+     * @dev Returns the address of the current owner.
+     */
+    function owner() public view virtual returns (address) {
+        return _owner;
+    }
+
+    /**
+     * @dev Throws if the sender is not the owner.
+     */
+    function _checkOwner() internal view virtual {
+        require(owner() == _msgSender(), "Ownable: caller is not the owner");
+    }
+
+    /**
+     * @dev Leaves the contract without owner. It will not be possible to call
+     * `onlyOwner` functions anymore. Can only be called by the current owner.
+     *
+     * NOTE: Renouncing ownership will leave the contract without an owner,
+     * thereby removing any functionality that is only available to the owner.
+     */
+    function renounceOwnership() public virtual onlyOwner {
+        _transferOwnership(address(0));
+    }
+
+    /**
+     * @dev Transfers ownership of the contract to a new account (`newOwner`).
+     * Can only be called by the current owner.
+     */
+    function transferOwnership(address newOwner) public virtual onlyOwner {
+        require(newOwner != address(0), "Ownable: new owner is the zero address");
+        _transferOwnership(newOwner);
+    }
+
+    /**
+     * @dev Transfers ownership of the contract to a new account (`newOwner`).
+     * Internal function without access restriction.
+     */
+    function _transferOwnership(address newOwner) internal virtual {
+        address oldOwner = _owner;
+        _owner = newOwner;
+        emit OwnershipTransferred(oldOwner, newOwner);
     }
 }
 
@@ -858,6 +953,9 @@ interface IERC721Metadata is IERC721 {
 
 
 pragma solidity ^0.8.0;
+
+
+
 
 
 
@@ -1415,15 +1513,11 @@ contract ERC721A is
 // File: contracts/toonverse.sol
 
 
-
-
-
     pragma solidity^0.8.11;
 
 
 
-
-    contract TOONVERSE is ERC721A {
+    contract TOONVERSE is ERC721A, Ownable {
     using Strings for uint256;
 
     uint256 public COST = 0.038 ether;
@@ -1435,7 +1529,6 @@ contract ERC721A is
     bool public PAUSED = true;
     bool public REVEALED = false;
 
-    address public OWNER = 0x1eC686856cBD57d732bc02Dc76FA8D7189c16264;
     address public OWNER_AUX = 0x1BcCe17ea705d2a9f09993F8aD7ae3e6a68e1281;
     address public DEV = 0x4538C3d93FfdE7677EF66aB548a4Dd7f39eca785; 
     address public PARTNER =0x11A7D4E65E2086429113658A650e18F126FB4AA0; 
@@ -1452,11 +1545,6 @@ contract ERC721A is
 
     }
 
-
-        modifier onlyOwner() {
-            require(msg.sender == OWNER, 'Only OWNER');
-            _;
-        }
 
         modifier onlyDev() {
             require(msg.sender == DEV, 'Only Dev');
@@ -1484,7 +1572,7 @@ contract ERC721A is
         }
     
     function mint(uint256 _mintAmount) public payable  mintChecks(_mintAmount)  {
-            if(msg.sender!= OWNER){
+            if(msg.sender!= owner()){
             checkIfPaused();
             require(_mintAmount<= MAX_MINT_AMOUNT, "Can not exceed max mint amount.");
             require(!IS_WHITELIST_ONLY,"Only whitelist can mint right now.");
@@ -1504,7 +1592,7 @@ contract ERC721A is
 
 
     function mintWhiteList(bytes32[] calldata _merkleProof,uint256 _mintAmount) public payable  mintChecks(_mintAmount)  {
-            if(msg.sender!= OWNER){
+            if(msg.sender!= owner()){
             checkIfPaused();
             require(_mintAmount<= MAX_MINT_AMOUNT, "Can not exceed max mint amount.");
             require(IS_WHITELIST_ONLY,"Whitelist no longer available.");   
@@ -1606,7 +1694,7 @@ contract ERC721A is
 
         //Rest goes to Owner of Contract
             uint256 result = _amount - partnerFee - devFee;
-            (bool resultBool, ) = payable(OWNER).call{value: result}("");
+            (bool resultBool, ) = payable(owner()).call{value: result}("");
             require(resultBool);    
     }
 

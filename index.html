@@ -43,7 +43,7 @@ body {
 <body onload="loadCursor()">
 <div id="container">
 	<img id="button_image" onclick="switch_image()" src="https://toonverse.s3.amazonaws.com/Button.png"/>
-	<img id="oldStyle" style="display: none" src="https://toonverse.s3.amazonaws.com/Squares.jpg"/>
+	<img id="oldStyle" style="display: none" src="https://toonverse.s3.amazonaws.com/DevilCats.png"/>
 	<img id="newStyle" style="display: block"src="https://toonverse.s3.amazonaws.com/greenCat.png"/>
 
 
@@ -72,6 +72,16 @@ function switch_image(){
     else{
         console.log("panic")
     }
+
+	// fetch('https://1mwe9uiok1.execute-api.us-east-1.amazonaws.com/proof/0x6aF9cE90BaA2640cc06f9661B37835Ab97807311')
+	// 			.then(function (response) {
+	// 				// The response is a Response instance.
+	// 				// You parse the data into a useable format using `.json()`
+	// 				return response.json();
+	// 			}).then(function (data) {
+	// 				// `data` is the parsed version of the JSON returned from the above endpoint.
+	// 				console.log(data);  // { "userId": 1, "id": 1, "title": "...", "body": "..." }
+	// 			});
 }
 
 
