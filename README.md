@@ -1,4 +1,4 @@
-# toonverse
+# Toonverse NFT webpage.
 
 Load the index.html in a browser.
 
