@@ -1,125 +1,246 @@
 <html>
+
 <head>
 	<title>Toonverse</title>
 	<link rel="shortcut icon" href="#">
 
-<style>
-body {
-	margin: 0;
-	overflow: hidden;
-	padding: 0;
-	text-align: center;
-}
+	<style>
+		body {
+			margin: 0;
+			overflow: hidden;
+			padding: 0;
+			text-align: center;
+		}
 
-#container {
-	/* border: 10px solid white; */
-	display: inline-block;
-  margin: 0 auto;
-	max-height: 470px;
-	max-width: 470px;
-  padding: 0;
-  position: relative;
-	width: 100%;
-}
+		#container {
+			/* border: 10px solid white; */
+			display: inline-block;
+			margin: 0 auto;
+			max-height: 470px;
+			max-width: 470px;
+			padding: 0;
+			position: relative;
+			width: 100%;
+		}
 
-#container img{
-	object-fit: contain;
-	width: 100%;
-}
+		#container img {
+			object-fit: contain;
+			width: 100%;
+		}
 
-#container #button_image{
-	border: none;
-	cursor: pointer;
-	outline: none;
-	position: absolute;
-	right: 0;
-	top: 0;
+		#container #button_image {
+			border: none;
+			cursor: pointer;
+			outline: none;
+			position: absolute;
+			right: 0;
+			top: 0;
 
-	height: 34.9px;
-	width: 34.9px;	
-}
-</style>
+			height: 34.9px;
+			width: 34.9px;
+		}
+
+		#container #button_image_hidden {
+			border: none;
+			cursor: pointer;
+			outline: none;
+			position: absolute;
+			right: 25;
+			top: 444;
+			height: 34.9px;
+			width: 34.9px;
+		}
+	</style>
 </head>
+
 <body onload="loadCursor()">
-<div id="container">
-	<img id="button_image" onclick="switch_image()" src="https://toonverse.s3.amazonaws.com/Button.png"/>
-	<img id="oldStyle" style="display: none" src="https://toonverse.s3.amazonaws.com/DevilCats.png"/>
-	<img id="newStyle" style="display: block"src="https://toonverse.s3.amazonaws.com/greenCat.png"/>
+	<div id="container">
+		<img id="button_image" onclick="switch_image()"
+			src="https://devilcatz.s3.us-east-2.amazonaws.com/misc/Button.png" />
+		<img id="mainImg" style="display: block"
+			src="https://devilcatz.s3.us-east-2.amazonaws.com/misc/DevilCats.png" />
 
-
-
-</div>
-<!-- <script type="text/javascript" src="tokens.js"></script> -->
-<script type="text/javascript">
-function loadCursor() {
-}
-function switch_image(){
-    var old_style = document.getElementById("oldStyle");
-    var new_style =  document.getElementById("newStyle");
-
-    oldDisplay = window.getComputedStyle(old_style).display;
-    newDisplay = window.getComputedStyle(new_style).display;
-    // console.log(oldDisplay)
-    // console.log(newDisplay)
-
-    if (oldDisplay == "block"){
-        new_style.style.display = "block"
-        old_style.style.display = "none"
-    }else if(newDisplay == "block"){
-        new_style.style.display = "none"
-        old_style.style.display = "block"
-    }
-    else{
-        console.log("panic")
-    }
-
-	// fetch('https://1mwe9uiok1.execute-api.us-east-1.amazonaws.com/proof/0x6aF9cE90BaA2640cc06f9661B37835Ab97807311')
-	// 			.then(function (response) {
-	// 				// The response is a Response instance.
-	// 				// You parse the data into a useable format using `.json()`
-	// 				return response.json();
-	// 			}).then(function (data) {
-	// 				// `data` is the parsed version of the JSON returned from the above endpoint.
-	// 				console.log(data);  // { "userId": 1, "id": 1, "title": "...", "body": "..." }
-	// 			});
-}
-
-
-function getUrlParameter( id ){
-	id = id.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
-	const regex = new RegExp( "[\\?&]" + id + "=([^&#]*)" );
-	const results = regex.exec( window.location.search );
-	if( results  )
-		return decodeURIComponent( results[1].replace( /\+/g, " ") );
-	else
-		return null;
-}
-
-const img = document.getElementById("newStyle")
-img.addEventListener("error", function(event) {
-  event.target.src = "https://toonverse.s3.amazonaws.com/greenCat.png"
-  event.onerror = null
-})
-
-document.addEventListener('DOMContentLoaded', () => {
-	const id = getUrlParameter( "id" );
-	if( id ){
-		let oldStyle = document.getElementById( 'oldStyle' );
-		let newStyle = document.getElementById( 'newStyle' );
-	
-
-		if( newStyle.src !== 'https://toonverse.s3.amazonaws.com/'+ id +'.png'){
-			newStyle.src = 'https://toonverse.s3.amazonaws.com/'+ id +'.png';
-		}
-		
-		if( oldStyle.src !== 'https://toonverse.s3.amazonaws.com/Squares.jpg' ){
-			oldStyle.src = 'https://toonverse.s3.amazonaws.com/Squares.jpg';
+	</div>
+	<script type="text/javascript">
+		function loadCursor() {
 		}
 
-	}
-});
+		let pixelIndex = 0;
+		let uriId = null;
+		const id = getUrlParameter("id");
+
+		// function getButton(){
+		// 	return "button_image"
+		// }
+
+		async function switch_image() {
+			var main_img = document.getElementById("mainImg");
+			var devilCatJson = null
+
+			mainDisplay = window.getComputedStyle(main_img).display;
 
 
-</script>
+
+			switch (pixelIndex) {
+				case 0:
+
+					pixelIndex += 1
+					main_img.src = 'https://devilcatz.s3.us-east-2.amazonaws.com/images/' + uriId + '.png';
+
+					break;
+
+				case 1:
+
+
+
+					main_img.src = 'https://devilcatz.s3.us-east-2.amazonaws.com/A/' + uriId + '.png';
+					pixelIndex += 1
+					break;
+				case 2:
+
+
+					main_img.src = 'https://devilcatz.s3.us-east-2.amazonaws.com/B/' + uriId + '.png';
+					pixelIndex += 1
+
+
+					break;
+				case 3:
+
+
+					main_img.src = 'https://devilcatz.s3.us-east-2.amazonaws.com/C/' + uriId + '.png';
+					pixelIndex += 1
+
+					break;
+				case 4:
+					// //Get Cloud based of name String.
+					// document.getElementById("button_image").style.opacity= .001;
+					// document.getElementById("button_image").style.right= 25;
+					// document.getElementById("button_image").style.top= 444;
+
+
+					main_img.src = await getCloudURL(id);
+					// console.log(await getCloudURL(id)) //comingback as promise
+					pixelIndex += 1
+					break;
+
+				case 5:
+					//Get Cloud based of name String.
+					// document.getElementById("button_image").style.opacity= .001;
+					// document.getElementById("button_image").style.right= 25;
+					// document.getElementById("button_image").style.top= 444;
+
+
+					main_img.src = await getGoblinURL(id);
+					// console.log(await getCloudURL(id)) //comingback as promise
+					pixelIndex += 1
+					break;
+
+				case 6:
+
+					main_img.src = 'https://devilcatz.s3.us-east-2.amazonaws.com/misc/tobecontinued.png';
+					pixelIndex = 0
+					// document.getElementById("button_image").style.right= 0;
+					// document.getElementById("button_image").style.top= 0;
+					// document.getElementById("button_image").style.opacity= 1;
+
+					break;
+
+				default:
+					console.log("Defualt segFault")
+			}
+		}
+
+
+
+		function getUrlParameter(id) {
+			id = id.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+			const regex = new RegExp("[\\?&]" + id + "=([^&#]*)");
+			const results = regex.exec(window.location.search);
+			uriId = results
+			if (results) {
+				uriId = decodeURIComponent(results[1].replace(/\+/g, " "));
+				return uriId;
+			}
+			else {
+				return null;
+
+			}
+		}
+
+		const img = document.getElementById("mainImg")
+		img.addEventListener("error", function (event) {
+			event.target.src = "https://devilcatz.s3.us-east-2.amazonaws.com/misc/DevilCats.png"
+			event.onerror = null
+		})
+
+		document.addEventListener('DOMContentLoaded', () => {
+			if (id) {
+				let mainImg = document.getElementById('mainImg');
+
+				try {
+					mainImg.src = 'https://devilcatz.s3.us-east-2.amazonaws.com/images/' + id + '.png';
+
+				} catch (e) {
+					mainImg.src = 'https://devilcatz.s3.us-east-2.amazonaws.com/misc/DevilCats.png';
+					pixelIndex = 0
+				}
+
+
+			}
+			pixelIndex += 1
+		});
+
+		//Cloud getters.
+		async function getCloudURL(id) {
+
+			devilCatJson = await getDevilCatJson(id)
+			// console.log(devilCatJson.attributes[devilCatJson.attributes.length -2].value)
+			//  console.log(devilCatJson.attributes[devilCatJson.attributes.length -2].value)
+			switch (devilCatJson.attributes[devilCatJson.attributes.length - 2].value) {
+				case 'Lightning':
+					return "https://devilcatz.s3.us-east-2.amazonaws.com/images/Lightening.png";
+				case 'Rainy':
+					return "https://devilcatz.s3.us-east-2.amazonaws.com/images/Rainy.png";
+				case 'Snowy':
+					return "https://devilcatz.s3.us-east-2.amazonaws.com/images/Snowy.png";
+				case 'Sunny':
+					return "https://devilcatz.s3.us-east-2.amazonaws.com/images/Sunny.png";
+				case 'Thunder':
+					return "https://devilcatz.s3.us-east-2.amazonaws.com/images/Thunder.png";
+				case 'Music':
+					return "https://devilcatz.s3.us-east-2.amazonaws.com/images/Music.png"
+			}
+
+		}
+
+
+		async function getGoblinURL(id) {
+
+			// console.log(devilCatJson.attributes[devilCatJson.attributes.length -2].value)
+			switch (devilCatJson.attributes[devilCatJson.attributes.length - 1].value) {
+				case 'Pineapple':
+					return "https://devilcatz.s3.us-east-2.amazonaws.com/FruityGoblins/Pineapple.PNG";
+				case 'Apple':
+					return "https://devilcatz.s3.us-east-2.amazonaws.com/FruityGoblins/Apple.PNG";
+				case 'Dragonfruit':
+					return "https://devilcatz.s3.us-east-2.amazonaws.com/FruityGoblins/Dragonfruit.PNG";
+				case 'Pear':
+					return "https://devilcatz.s3.us-east-2.amazonaws.com/FruityGoblins/Pear.PNG";
+				case 'Banana':
+					return "https://devilcatz.s3.us-east-2.amazonaws.com/FruityGoblins/Banana.PNG";
+			}
+
+		}
+
+		async function getDevilCatJson(id) {
+			url = 'https://devilcatz.s3.us-east-2.amazonaws.com/json/' + id + '.json';
+			const response = await fetch(url)
+
+			return response.json();
+		}
+
+
+	</script>
 </body>
+
 </html>
